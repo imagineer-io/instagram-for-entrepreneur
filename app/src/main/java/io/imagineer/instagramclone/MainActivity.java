@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.zomato.photofilters.SampleFilters;
@@ -25,18 +26,31 @@ public class MainActivity extends AppCompatActivity implements ThumbnailCallback
     private RecyclerView thumbListView;
     private ImageView placeHolderImageView;
 
+    private Bitmap mBitmap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         activity = this;
+
+        byte[] byteArray = getIntent().getByteArrayExtra("image");
+        Log.v("MainActivity", "byteArray : " + byteArray);
+        mBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+
         initUIWidgets();
     }
 
     private void initUIWidgets() {
+        Log.v("MainActivity", "mBitmap : " + mBitmap);
         thumbListView = (RecyclerView) findViewById(R.id.thumbnails);
         placeHolderImageView = (ImageView) findViewById(R.id.place_holder_imageview);
-        placeHolderImageView.setImageBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(this.getApplicationContext().getResources(), R.drawable.photo), 640, 640, false));
+        placeHolderImageView.setImageBitmap(Bitmap.createScaledBitmap(
+//                BitmapFactory.decodeResource(
+//                        this.getApplicationContext().getResources(),
+//                        R.drawable.photo),
+                mBitmap,
+                640, 640, false));
         initHorizontalList();
     }
 
@@ -54,7 +68,10 @@ public class MainActivity extends AppCompatActivity implements ThumbnailCallback
         Handler handler = new Handler();
         Runnable r = new Runnable() {
             public void run() {
-                Bitmap thumbImage = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.photo), 640, 640, false);
+                Bitmap thumbImage = Bitmap.createScaledBitmap(
+                        // BitmapFactory.decodeResource(context.getResources(), R.drawable.photo),
+                        mBitmap,
+                        640, 640, false);
                 ThumbnailItem t1 = new ThumbnailItem();
                 ThumbnailItem t2 = new ThumbnailItem();
                 ThumbnailItem t3 = new ThumbnailItem();
@@ -98,6 +115,10 @@ public class MainActivity extends AppCompatActivity implements ThumbnailCallback
 
     @Override
     public void onThumbnailClick(Filter filter) {
-        placeHolderImageView.setImageBitmap(filter.processFilter(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(this.getApplicationContext().getResources(), R.drawable.photo), 640, 640, false)));
+        placeHolderImageView.setImageBitmap(filter.processFilter(
+                Bitmap.createScaledBitmap(
+                        // BitmapFactory.decodeResource(this.getApplicationContext().getResources(), R.drawable.photo),
+                        mBitmap,
+                        640, 640, false)));
     }
 }
