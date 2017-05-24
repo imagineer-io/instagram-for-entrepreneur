@@ -3,7 +3,7 @@
       xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/image_save"
-        android:title="Item"
+        android:title="@string/menu_title"
         android:icon="@android:drawable/ic_menu_save"
         app:showAsAction="ifRoom"/>
 
