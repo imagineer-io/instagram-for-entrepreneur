@@ -1,15 +1,23 @@
 package io.imagineer.instagramclone;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.zomato.photofilters.SampleFilters;
@@ -27,6 +35,40 @@ public class MainActivity extends AppCompatActivity implements ThumbnailCallback
     private ImageView placeHolderImageView;
 
     private Bitmap mBitmap;
+    private Bitmap mCurrentBitmap;
+
+    private final int CODE_WRITE_EXTERNAL_STORAGE = 1;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.image_save) {
+            // implementation
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE },
+                        CODE_WRITE_EXTERNAL_STORAGE);
+            };
+
+            MediaStore.Images.Media.insertImage(
+                    getContentResolver(),
+                    mCurrentBitmap,
+                    "title",
+                    "description");
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,10 +157,11 @@ public class MainActivity extends AppCompatActivity implements ThumbnailCallback
 
     @Override
     public void onThumbnailClick(Filter filter) {
-        placeHolderImageView.setImageBitmap(filter.processFilter(
+        mCurrentBitmap = filter.processFilter(
                 Bitmap.createScaledBitmap(
                         // BitmapFactory.decodeResource(this.getApplicationContext().getResources(), R.drawable.photo),
                         mBitmap,
-                        640, 640, false)));
+                        640, 640, false));
+        placeHolderImageView.setImageBitmap(mCurrentBitmap);
     }
 }
